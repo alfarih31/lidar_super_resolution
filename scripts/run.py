@@ -32,8 +32,8 @@ def MC_drop(iterate_count=50):
     model, _, _ = get_model('testing')
     model.load_weights(weight_name)
 
-    this_test = np.empty([iterate_count, image_rows_low, image_cols, channel_num], dtype=np.float32)
-    test_data_prediction = np.empty([test_data_input.shape[0], image_rows_high, image_cols, 2], dtype=np.float32)
+    this_test = np.empty([iterate_count, image_rows_low, image_cols_high, channel_num], dtype=np.float32)
+    test_data_prediction = np.empty([test_data_input.shape[0], image_rows_high, image_cols_high, 2], dtype=np.float32)
 
     for i in range(test_data_prediction.shape[0]):
 
@@ -58,5 +58,5 @@ if __name__ == '__main__':
     train()
 
     # -> Monte-Carlo Dropout Test
-    MC_drop()
+#    MC_drop()
     

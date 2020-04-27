@@ -19,6 +19,18 @@ from tensorflow.keras import backend as K
 from tensorflow.keras import losses
 from tensorflow.keras.utils import multi_gpu_model
 
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        # Currently, memory growth needs to be the same across GPUs
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    except RuntimeError as e:
+        # Memory growth must be set before GPUs have been initialized
+        print(e)
+
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 # K.set_floatx('float16')
 K.set_floatx('float32')
@@ -74,7 +86,7 @@ def UNet():
     act_func = 'relu'
     kernel_init = 'he_normal'
 
-    inputs = Input((image_rows_low, image_cols, channel_num))
+    inputs = Input((image_rows_low, image_cols_high, channel_num))
 
     # upscailing
     x0 = inputs
@@ -115,7 +127,10 @@ def UNet():
     y1 = conv_block(y1, filters*2)
     y1 = Dropout(dropout_rate)(y1, training=True)
     y1 = up_block(y1, filters, strides=(2,2))
- 
+    y1 = up_block(y1, filters, strides=(2,2))
+
+    x1 = up_block(x1, filters, strides=(2,2))
+
     y0 = concatenate([x1, y1], axis=3)
     y0 = conv_block(y0, filters)
 
